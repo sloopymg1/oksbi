@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OKSBI Music Publishing</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #172033;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #10182b 0, #18284a 320px, #f5f7fb 320px);
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 20px 64px;
+    }
+
+    .hero,
+    .section,
+    .stats {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(16, 24, 43, 0.08);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .hero {
+      color: #fff;
+      background: linear-gradient(135deg, #7d3cff, #23b6e6);
+    }
+
+    h1,
+    h2 {
+      margin-top: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid #d8e0f0;
+      border-radius: 12px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .cta {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 12px 18px;
+      background: #10182b;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <p>OKSBI</p>
+      <h1>Music publishing for song catalogs that keep moving.</h1>
+      <p>Track compositions, ownership splits, release readiness, and royalty visibility in one place.</p>
+      <a class="cta" href="#catalog">View catalog tools</a>
+    </section>
+
+    <section class="section" id="catalog">
+      <h2>Core workflows</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Song catalog</h3>
+          <p>Organize titles, writers, publishers, ISWC references, and release notes.</p>
+        </article>
+        <article class="card">
+          <h3>Rights management</h3>
+          <p>Keep publishing splits clear so collaborators know exactly who controls each composition.</p>
+        </article>
+        <article class="card">
+          <h3>Release coordination</h3>
+          <p>Track songs from submission through approval for sync, DSP, and administration workflows.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="stats">
+      <h2>Publishing snapshot</h2>
+      <div class="grid">
+        <div class="stat card">
+          <strong>128</strong>
+          <span>Registered songs</span>
+        </div>
+        <div class="stat card">
+          <strong>24</strong>
+          <span>Active writers</span>
+        </div>
+        <div class="stat card">
+          <strong>9</strong>
+          <span>Pending clearances</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Royalty visibility</h2>
+      <p>Give your team a shared view of upcoming collections, outstanding registrations, and songs that need attention before the next release cycle.</p>
+    </section>
+  </main>
+</body>
+</html>
