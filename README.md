@@ -4,4 +4,4 @@ A simple music publishing app landing page for managing songs, rights, releases,
 
 ## Run locally
 
-Open `/home/runner/work/oksbi/oksbi/index.html` in a browser.
+Open `index.html` from the project root in a browser.
