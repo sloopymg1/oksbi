@@ -1,0 +1,56 @@
+openapi: 3.1.0
+info:
+  title: OKSBI API
+  version: 0.1.0
+paths:
+  /health:
+    get:
+      summary: Service health
+  /auth/register:
+    post:
+      summary: Register a creator account
+  /auth/login:
+    post:
+      summary: Authenticate a creator account
+  /auth/me:
+    get:
+      summary: Resolve the current user
+  /auth/logout:
+    post:
+      summary: Revoke the current session
+  /onboarding:
+    post:
+      summary: Create or update onboarding state
+  /releases:
+    get:
+      summary: List releases for the signed-in creator
+  /recordings:
+    get:
+      summary: List recordings, optionally filtered by release
+  /compositions:
+    get:
+      summary: List compositions for the signed-in creator
+  /rights/splits:
+    post:
+      summary: Submit a split version for review
+  /royalties/statements:
+    get:
+      summary: List royalty statements
+  /payouts:
+    post:
+      summary: Create a payout request
+  /smart-links:
+    post:
+      summary: Create or update a smart link
+  /support/cases:
+    post:
+      summary: Create a support case
+  /takedowns:
+    post:
+      summary: Submit a takedown request
+  /admin/operations:
+    post:
+      summary: Record an admin operation
+  /openapi:
+    get:
+      summary: Fetch the OpenAPI document

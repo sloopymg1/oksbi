@@ -1,0 +1,26 @@
+{
+  "name": "oksbi",
+  "private": true,
+  "workspaces": [
+    "services/shared",
+    "services/oksbi-api",
+    "services/web"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "clean": "npm run clean --workspaces --if-present",
+    "dev": "npm run dev:api & npm run dev:web",
+    "dev:api": "npm --prefix services/oksbi-api run dev",
+    "dev:web": "npm --prefix services/web run dev",
+    "emulators:start": "docker compose up -d",
+    "emulators:stop": "docker compose down",
+    "emulators:clean": "docker compose down -v",
+    "db:migrate": "docker compose up --abort-on-container-exit db-migrate",
+    "api:dev": "npm --prefix services/oksbi-api run dev",
+    "web:dev": "npm --prefix services/web run dev"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

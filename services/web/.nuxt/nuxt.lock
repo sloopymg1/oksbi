@@ -1,0 +1,9 @@
+{
+  "pid": 16153,
+  "startedAt": 1789643411090,
+  "command": "dev",
+  "cwd": "/Users/okissibiri/MYAPPS/MUSIC PACKAGE/oksbi/services/web",
+  "port": 3001,
+  "hostname": "::1",
+  "url": "http://[::1]:3001"
+}

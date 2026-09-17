@@ -1,0 +1,32 @@
+{
+  "name": "oksbi-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/oksbi-api/src/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+    "watch": "tsc -p tsconfig.json --watch",
+    "migrate": "node scripts/migrate.mjs",
+    "dev": "tsx --inspect=9229 --watch src/index.ts",
+    "start": "node --inspect=9229 dist/oksbi-api/src/index.js"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.13.0",
+    "@azure/storage-blob": "^12.29.1",
+    "bcryptjs": "^3.0.2",
+    "jose": "^6.1.0",
+    "pg": "^8.16.3",
+    "pino": "^9.9.5",
+    "redis": "^5.8.2",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.2"
+  }
+}

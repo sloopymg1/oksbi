@@ -1,0 +1,40 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "OKSBI API (debug)",
+      "type": "node",
+      "request": "attach",
+      "address": "localhost",
+      "port": 9229,
+      "restart": true,
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/services/oksbi-api/dist/**/*.js"
+      ],
+      "preLaunchTask": "oksbi-api: npm watch"
+    },
+    {
+      "name": "OKSBI Web (debug)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/services/web/src",
+      "preLaunchTask": "oksbi-web: nuxt dev"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug All Services",
+      "configurations": [
+        "OKSBI API (debug)",
+        "OKSBI Web (debug)"
+      ],
+      "preLaunchTask": "oksbi-debug: all services",
+      "stopAll": true
+    }
+  ]
+}
