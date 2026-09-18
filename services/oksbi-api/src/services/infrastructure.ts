@@ -15,6 +15,7 @@ import type {
 type QueryExecutor = Pick<Pool, 'query'> | PoolClient;
 
 const collectionTableMap: Record<string, string> = {
+  musicSubmission: 'music_submissions',
   user: 'users',
   session: 'sessions',
   onboardingProfile: 'onboarding_profiles',

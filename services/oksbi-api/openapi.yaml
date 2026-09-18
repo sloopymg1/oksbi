@@ -18,7 +18,23 @@ paths:
   /auth/logout:
     post:
       summary: Revoke the current session
+  /music:
+    get:
+      summary: List owned music submissions (all submissions for administrators)
+    post:
+      summary: Create a draft with writer shares, requested societies and authorization
+  /music/{id}/audio:
+    put:
+      summary: Upload raw WAV, MP3 or FLAC audio, maximum 50 MB, to an owned draft
+  /music/{id}/submit:
+    post:
+      summary: Submit uploaded music for OKSBI review (idempotent)
+  /music/{id}/registration:
+    patch:
+      summary: Administrator records delivery or society confirmation with reference
   /onboarding:
+    get:
+      summary: Get current musician profile
     post:
       summary: Create or update onboarding state
   /releases:

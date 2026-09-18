@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, readdir } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import pg from 'pg'
 
@@ -33,15 +33,15 @@ try {
     )
   `)
 
-  const migrationId = '0001_initial'
-  const applied = await client.query('SELECT id FROM schema_migrations WHERE id = $1', [migrationId])
-  if (applied.rowCount === 0) {
-    const migration = await readFile(resolve('prisma/migrations/0001_initial/migration.sql'), 'utf8')
-    await client.query(migration)
-    await client.query('INSERT INTO schema_migrations (id) VALUES ($1)', [migrationId])
-    console.log(`Applied ${migrationId}`)
-  } else {
-    console.log(`Already applied ${migrationId}`)
+  const migrations = (await readdir(resolve('prisma/migrations'))).sort()
+  for (const migrationId of migrations) {
+    const applied = await client.query('SELECT id FROM schema_migrations WHERE id = $1', [migrationId])
+    if (applied.rowCount === 0) {
+      const migration = await readFile(resolve('prisma/migrations', migrationId, 'migration.sql'), 'utf8')
+      await client.query(migration)
+      await client.query('INSERT INTO schema_migrations (id) VALUES ($1)', [migrationId])
+      console.log(`Applied ${migrationId}`)
+    }
   }
 
   await client.query('COMMIT')

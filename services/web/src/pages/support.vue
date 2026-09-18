@@ -1,5 +1,19 @@
 <script setup lang="ts">
 import { api } from '~/api'
+import { request } from '~/api/client'
+const subject = ref('')
+const description = ref('')
+const sending = ref(false)
+const feedback = ref('')
+async function createCase() {
+  sending.value = true
+  try {
+    await request('/support/cases', { method: 'POST', body: JSON.stringify({ category: 'rights', subject: subject.value, description: description.value }) })
+    feedback.value = 'Your rights support request has been sent to OKSBI.'
+    subject.value = ''; description.value = ''; await supportResource.reload()
+  } catch (e) { feedback.value = e instanceof Error ? e.message : 'Unable to send request.' }
+  finally { sending.value = false }
+}
 import type { SupportRecord } from '~/types'
 
 const supportResource = useApiResource<SupportRecord[]>(() => api.listSupportCases())
@@ -7,6 +21,15 @@ const rows = computed(() => supportResource.data.value ?? [])
 </script>
 
 <template>
+  <section class="surface workspace-copy" style="margin-bottom: 24px">
+    <h1 class="section-title">Contact OKSBI about your music registration</h1>
+    <form class="form-stack" @submit.prevent="createCase">
+      <label class="form-label">Subject / track title<input v-model="subject" required maxlength="180" class="form-field" /></label>
+      <label class="form-label">Corrections or questions<textarea v-model="description" required minlength="10" maxlength="4000" class="form-field" /></label>
+      <p v-if="feedback" role="status">{{ feedback }}</p>
+      <button class="primary-button" :disabled="sending">{{ sending ? 'Sending…' : 'Send to OKSBI' }}</button>
+    </form>
+  </section>
   <StatePanel
     :data="rows"
     :loading="supportResource.loading.value"

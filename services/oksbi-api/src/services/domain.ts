@@ -68,6 +68,7 @@ class OwnedEntityService {
 
 export class DefaultOnboardingService extends OwnedEntityService implements OnboardingService {
   async upsert(actor: User, input: OnboardingRequest): Promise<OnboardingProfile> {
+    if (input.status === 'approved' && !actor.roles.includes('admin')) throw new ForbiddenError('Only OKSBI can approve membership.');
     const existing = await this.database.findFirst<OnboardingProfile>('onboardingProfile', { userId: actor.id });
     if (existing) {
       const updated = await this.database.update<OnboardingProfile>('onboardingProfile', existing.id, {

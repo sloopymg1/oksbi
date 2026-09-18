@@ -3,7 +3,8 @@ const route = useRoute()
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: 'dashboard', badge: 'live' },
-  { to: '/catalog', label: 'Catalog', icon: 'catalog', badge: '43' },
+  { to: '/membership', label: 'Musician profile', icon: 'rights', badge: '' },
+  { to: '/catalog', label: 'My music & societies', icon: 'catalog', badge: '' },
   { to: '/rights', label: 'Rights', icon: 'rights', badge: '18' },
   { to: '/royalties', label: 'Royalties', icon: 'royalties', badge: '3' },
   { to: '/payouts', label: 'Payouts', icon: 'payouts', badge: '2' },
@@ -16,15 +17,15 @@ const navItems = [
     <div class="brand-lockup workspace-copy">
       <span class="eyebrow">Music operations</span>
       <div class="brand-wordmark">OKSBI</div>
-      <p class="muted">Distribution, rights, royalties, and payout control in one dense working surface.</p>
+      <p class="muted">Join OKSBI, upload your music, and track PRO and CMO registrations.</p>
     </div>
 
     <div class="sidebar-panel workspace-copy" style="margin-bottom: 18px">
       <div class="topline">
         <strong>Workspace</strong>
-        <span class="pill">Creator ops</span>
+        <span class="pill">Musician</span>
       </div>
-      <p class="muted">Accra distribution desk</p>
+      <p class="muted">OKSBI music registration</p>
     </div>
 
     <nav class="workspace-copy" aria-label="Primary navigation">
@@ -44,8 +45,8 @@ const navItems = [
     <div class="sidebar-stack" style="margin-top: 22px">
       <div class="sidebar-panel workspace-copy" style="width: 100%">
         <span class="eyebrow">Signal</span>
-        <strong>Royalty close in 36h</strong>
-        <p class="muted">Ledger variance is within threshold except TikTok Europe and Japan publishing receipts.</p>
+        <strong>Your registration journey</strong>
+        <p class="muted">Profile → Upload music → OKSBI review → Society confirmation.</p>
       </div>
     </div>
   </aside>

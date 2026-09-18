@@ -133,3 +133,20 @@ export interface ServiceHealth {
   ok: boolean;
   checks: Record<string, boolean>;
 }
+
+export interface MusicSubmission extends AuditFields {
+  id: string;
+  ownerUserId: string;
+  metadata: import('../schemas/validation.js').MusicSubmissionInput;
+  artistName: string;
+  audioBlobPath?: string;
+  status: 'draft' | 'submitted';
+  registrations: Array<{
+    name: string;
+    kind: 'PRO' | 'CMO';
+    territory: string;
+    status: 'pending_review' | 'needs_changes' | 'sent' | 'registered';
+    reference: string;
+    notes: string;
+  }>;
+}

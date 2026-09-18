@@ -121,3 +121,25 @@ export type SmartLinkRequestBody = z.infer<typeof smartLinkRequestSchema>;
 export type SupportCaseRequestBody = z.infer<typeof supportCaseRequestSchema>;
 export type TakedownRequestBody = z.infer<typeof takedownRequestSchema>;
 export type AdminOperationRequest = z.infer<typeof adminOperationSchema>;
+
+export const musicSubmissionSchema = z.object({
+  title: z.string().trim().min(1).max(180),
+  language: z.string().trim().min(2).max(80),
+  isrc: z.string().trim().max(32).default(''),
+  iswc: z.string().trim().max(32).default(''),
+  publisherName: z.string().trim().max(180).default(''),
+  contributors: z.array(z.object({
+    name: z.string().trim().min(2).max(160),
+    role: z.enum(['composer', 'lyricist', 'composer_lyricist']),
+    share: z.number().positive().max(100),
+    ipi: z.string().trim().max(32).default(''),
+    society: z.string().trim().max(160).default(''),
+  })).min(1).max(50).refine(rows => Math.abs(rows.reduce((sum, row) => sum + row.share, 0) - 100) < 0.001, 'Writer shares must total 100%'),
+  destinations: z.array(z.object({
+    name: z.string().trim().min(2).max(160),
+    kind: z.enum(['PRO', 'CMO']),
+    territory: z.string().trim().min(2).max(120),
+  })).min(1).max(20).refine(rows => new Set(rows.map(row => row.name.toLowerCase())).size === rows.length, 'Choose each society once'),
+  authorized: z.literal(true),
+});
+export type MusicSubmissionInput = z.infer<typeof musicSubmissionSchema>;

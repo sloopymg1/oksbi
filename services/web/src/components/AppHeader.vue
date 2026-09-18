@@ -8,9 +8,10 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
     title: 'Creator operations dashboard',
     subtitle: 'Release delivery, publishing rights, royalty close, and payout readiness tracked in one operational surface.'
   },
+  '/membership': { title: 'Musician profile', subtitle: 'Join OKSBI and prepare your music for society registration.' },
   '/catalog': {
-    title: 'Catalog command',
-    subtitle: 'Release traffic, metadata holds, and delivery windows aligned for outbound distribution.'
+    title: 'My music & society registrations',
+    subtitle: 'Upload your music and track each requested PRO or CMO registration.'
   },
   '/rights': {
     title: 'Rights control room',

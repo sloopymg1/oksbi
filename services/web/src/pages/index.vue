@@ -47,8 +47,8 @@ const isEmpty = computed(() => !snapshot.value || snapshot.value.metrics.length 
 
         <div class="hero-grid">
           <div class="hero-copy workspace-copy">
-            <span class="eyebrow">Release + rights + finance</span>
-            <h1 class="page-title">Landing view for the full music operations cycle.</h1>
+            <span class="eyebrow">Join · Upload · Register</span>
+            <h1 class="page-title">Your music. Your rights. Your OKSBI workspace.</h1>
             <p class="page-subtitle">
               {{ auth.user.value?.fullName }} is signed in, so the dashboard opens directly into delivery risk, split health,
               royalty close posture, and payout readiness.
@@ -56,7 +56,7 @@ const isEmpty = computed(() => !snapshot.value || snapshot.value.metrics.length 
             <div class="button-row">
               <NuxtLink class="primary-button" to="/catalog">
                 <AppIcon name="plus" style="width: 18px; height: 18px" />
-                Review release queue
+                Upload music & track societies
               </NuxtLink>
               <NuxtLink class="secondary-button" to="/rights">
                 <AppIcon name="arrow" style="width: 18px; height: 18px" />

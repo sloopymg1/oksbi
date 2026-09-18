@@ -34,18 +34,18 @@ function toWorkspaceUser(user: ApiUser): WorkspaceUser {
   return {
     id: user.id,
     fullName: user.displayName,
-    role: user.roles[0] ?? 'Creator',
+    role: user.roles.includes('admin') ? 'admin' : user.roles[0] ?? 'Creator',
     organization: user.organizationId ?? 'Independent workspace',
     email: user.email,
     avatarUrl: ''
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+export async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = import.meta.client ? window.localStorage.getItem('oksbi_access_token') : null
   const headers = new Headers(options.headers)
   headers.set('Accept', 'application/json')
-  if (options.body) {
+  if (options.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
   if (token) {
@@ -152,7 +152,7 @@ export const liveClient: ApiClient = {
         id: split.id,
         work: composition?.title ?? split.versionName,
         writer: split.interests[0]?.partyName ?? 'Unassigned',
-        society: composition?.publisherName ?? 'Unassigned',
+        society: 'See music registrations',
         splitStatus: split.status,
         issue: split.interests.length === 0 ? 'Add ownership interests' : 'No open issue',
         effectiveDate: 'Not set'

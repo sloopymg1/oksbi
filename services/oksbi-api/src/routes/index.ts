@@ -1,3 +1,4 @@
+import { musicRoutes } from './music.js';
 import type { RouteDefinition } from '../http.js';
 import { adminOperationsRoute } from './adminOperations.js';
 import { authCurrentUserRoute } from './authCurrentUser.js';
@@ -18,6 +19,7 @@ import { supportListRoute, supportRoute } from './support.js';
 import { takedownsRoute } from './takedowns.js';
 
 export const routes: RouteDefinition[] = [
+  ...musicRoutes,
   healthRoute,
   authRegisterRoute,
   authLoginRoute,
