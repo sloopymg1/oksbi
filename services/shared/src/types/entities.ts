@@ -30,7 +30,37 @@ export interface OnboardingProfile extends AuditFields {
   artistName: string;
   countryCode: string;
   taxResidenceCountry: string;
-  status: 'draft' | 'submitted' | 'approved';
+  status: 'in_process' | 'approved' | 'suspended' | 'contact_admin';
+  registrationData: RegistrationData;
+}
+
+export interface RegistrationData {
+  title: string;
+  legalLastName: string;
+  legalFirstName: string;
+  otherNames: string;
+  idType: string;
+  idNumber: string;
+  nationality: string;
+  dateOfBirth: string;
+  roles: string[];
+  gender: string;
+  email: string;
+  phone: string;
+  region: string;
+  district: string;
+  residentialAddress: string;
+  digitalAddress: string;
+  hometown: string;
+  socialLinks: { instagram: string; facebook: string; x: string; youtube: string; website: string };
+  recordLabel: string;
+  performingRightsMember: 'yes' | 'no';
+  mechanicalRightsMember: 'yes' | 'no';
+  excludeTerritories: 'yes' | 'no';
+  excludedCountries: string;
+  paymentDetails: 'bank' | 'mobile_money' | 'both';
+  nextOfKin: { name: string; relationship: string; phone: string };
+  termsAccepted: boolean;
 }
 
 export interface Release extends AuditFields {
@@ -112,6 +142,22 @@ export interface SupportCase extends AuditFields {
   status: 'open' | 'in_review' | 'resolved';
 }
 
+export interface KnowledgeDocument extends AuditFields {
+  id: string;
+  ownerUserId: string;
+  title: string;
+  source: string;
+  content: string;
+  tags: string[];
+}
+
+export interface KnowledgeAnswer {
+  answer: string;
+  confidence: 'high' | 'medium' | 'low' | 'none';
+  sources: Array<{ id: string; title: string; source: string; excerpt: string; score: number }>;
+  researched: boolean;
+}
+
 export interface TakedownRequest extends AuditFields {
   id: string;
   userId: string;
@@ -143,10 +189,37 @@ export interface MusicSubmission extends AuditFields {
   status: 'draft' | 'submitted';
   registrations: Array<{
     name: string;
-    kind: 'PRO' | 'CMO';
+    kind: 'PRO' | 'CMO' | 'publisher';
+    organizationId?: string;
     territory: string;
     status: 'pending_review' | 'needs_changes' | 'sent' | 'registered';
     reference: string;
     notes: string;
   }>;
+}
+
+export interface MusicSearchContributor {
+  name: string;
+  role?: string;
+  ipi?: string;
+  society?: string;
+}
+
+export interface MusicSearchMatch {
+  id: string;
+  title: string;
+  author: string;
+  source: 'pending_intake' | 'approved_catalog' | 'public_web';
+  titleMatch: 'exact' | 'similar';
+  authorConfidence: 'high' | 'medium' | 'low' | 'unknown';
+  status?: string;
+  sourceUrl?: string;
+  excerpt?: string;
+}
+
+export interface MusicSearchResult {
+  query: import('../schemas/validation.js').MusicSearchQuery;
+  matches: MusicSearchMatch[];
+  duplicateWarnings: string[];
+  externalSearched: boolean;
 }

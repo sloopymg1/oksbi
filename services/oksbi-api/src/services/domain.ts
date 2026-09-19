@@ -1,4 +1,5 @@
 import { ForbiddenError, NotFoundError } from '../errors/errorTypes.js';
+import { randomUUID } from 'node:crypto';
 import type {
   AdminService,
   CompositionService,
@@ -36,6 +37,8 @@ import type {
   SupportCaseRequestBody,
   TakedownRequest,
   TakedownRequestBody,
+  MusicianStatusRequest,
+  MusicSubmission,
   User,
 } from '../shared.js';
 import { createAuditFields, touchAuditFields } from '../utils/records.js';
@@ -354,5 +357,41 @@ export class DefaultAdminService extends OwnedEntityService implements AdminServ
       actorUserId: actor.id,
       ...operationValues,
     });
+  }
+
+  async listMusicians(actor: User) {
+    if (!actor.roles.includes('admin')) throw new ForbiddenError('Administrator role required');
+    return this.database.query<{ id: string; email: string; displayName: string; createdAt: string; onboardingStatus: string; artistName?: string; countryCode?: string }>(
+      `SELECT u.id, u.email, u.display_name, u.created_at, COALESCE(op.status, 'in_process') AS onboarding_status, op.artist_name, op.country_code
+       FROM users u LEFT JOIN onboarding_profiles op ON op.user_id = u.id
+       WHERE NOT ('admin' = ANY(u.roles)) ORDER BY u.created_at DESC`,
+    );
+  }
+
+  async getMusician(actor: User, musicianId: string) {
+    if (!actor.roles.includes('admin')) throw new ForbiddenError('Administrator role required');
+    const musicians = await this.database.query<{ id: string; email: string; displayName: string; createdAt: string; onboardingStatus: string; artistName?: string; countryCode?: string }>(
+      `SELECT u.id, u.email, u.display_name, u.created_at, COALESCE(op.status, 'in_process') AS onboarding_status, op.artist_name, op.country_code
+       FROM users u LEFT JOIN onboarding_profiles op ON op.user_id = u.id
+       WHERE u.id = $1 AND NOT ('admin' = ANY(u.roles))`,
+      [musicianId],
+    );
+    const musician = musicians[0];
+    if (!musician) throw new NotFoundError('Musician', musicianId);
+    const songs = await this.database.findMany<MusicSubmission>('musicSubmission', { filter: { ownerUserId: musicianId }, orderBy: 'createdAt', orderDirection: 'desc' });
+    return { musician, songs };
+  }
+
+  async updateMusicianStatus(actor: User, musicianId: string, input: MusicianStatusRequest): Promise<void> {
+    if (!actor.roles.includes('admin')) throw new ForbiddenError('Administrator role required');
+    const musician = await this.database.findById<User>('user', musicianId);
+    if (!musician || musician.roles.includes('admin')) throw new ForbiddenError('Only musician accounts can be managed here.');
+    const profile = await this.database.findFirst<{ id: string }>('onboardingProfile', { userId: musicianId });
+    const timestamp = new Date().toISOString();
+    if (!profile) {
+      await this.database.create('onboardingProfile', { id: randomUUID(), userId: musicianId, organizationName: 'Independent', artistName: musician.displayName, countryCode: 'XX', taxResidenceCountry: 'XX', status: input.status, createdAt: timestamp, updatedAt: timestamp, createdBy: actor.id, updatedBy: actor.id });
+      return;
+    }
+    await this.database.update('onboardingProfile', profile.id, { status: input.status, updatedAt: timestamp, updatedBy: actor.id });
   }
 }

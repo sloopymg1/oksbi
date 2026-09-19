@@ -17,6 +17,9 @@ import { royaltiesStatementsRoute } from './royaltiesStatements.js';
 import { smartLinksRoute } from './smartLinks.js';
 import { supportListRoute, supportRoute } from './support.js';
 import { takedownsRoute } from './takedowns.js';
+import { knowledgeAnswerRoute, knowledgeCreateRoute, knowledgeListRoute, knowledgeResearchRoute } from './knowledge.js';
+import { musicianDetailRoute, musicianStatusRoute, musiciansListRoute } from './musicians.js';
+import { musicSearchRoute } from './musicSearch.js';
 
 export const routes: RouteDefinition[] = [
   ...musicRoutes,
@@ -40,4 +43,12 @@ export const routes: RouteDefinition[] = [
   takedownsRoute,
   adminOperationsRoute,
   openApiRoute,
+  knowledgeListRoute,
+  knowledgeCreateRoute,
+  knowledgeAnswerRoute,
+  knowledgeResearchRoute,
+  musiciansListRoute,
+  musicianStatusRoute,
+  musicianDetailRoute,
+  musicSearchRoute,
 ];

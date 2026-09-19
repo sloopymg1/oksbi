@@ -29,6 +29,8 @@ const collectionTableMap: Record<string, string> = {
   supportCase: 'support_cases',
   takedownRequest: 'takedown_requests',
   adminOperation: 'admin_operations',
+  knowledgeDocument: 'knowledge_documents',
+  society: 'societies',
 };
 
 function toSnake(value: string): string {

@@ -1,15 +1,26 @@
 <script setup lang="ts">
 const route = useRoute()
+const auth = useAuth()
 
-const navItems = [
-  { to: '/', label: 'Dashboard', icon: 'dashboard', badge: 'live' },
+const musicianItems = [
   { to: '/membership', label: 'Musician profile', icon: 'rights', badge: '' },
-  { to: '/catalog', label: 'My music & societies', icon: 'catalog', badge: '' },
+  { to: '/catalog', label: 'My music', icon: 'catalog', badge: '' },
+  { to: '/societies', label: 'Publish & Copyright Societies', icon: 'catalog', badge: '' }
+] as const
+
+const adminItems = [
+  { to: '/', label: 'Dashboard', icon: 'dashboard', badge: 'live' },
+  { to: '/musicians', label: 'List Musicians', icon: 'rights', badge: 'admin' },
+  { to: '/music-search', label: 'Song research', icon: 'search', badge: 'AI' },
+  { to: '/societies', label: 'Publish & Copyright Societies', icon: 'catalog', badge: '' },
   { to: '/rights', label: 'Rights', icon: 'rights', badge: '18' },
   { to: '/royalties', label: 'Royalties', icon: 'royalties', badge: '3' },
   { to: '/payouts', label: 'Payouts', icon: 'payouts', badge: '2' },
-  { to: '/support', label: 'Support', icon: 'support', badge: '4' }
+  { to: '/support', label: 'Support', icon: 'support', badge: '4' },
+  { to: '/knowledge', label: 'Knowledge & AI', icon: 'support', badge: 'admin' }
 ] as const
+
+const navItems = computed(() => auth.user.value?.role === 'admin' ? adminItems : musicianItems)
 </script>
 
 <template>
@@ -23,9 +34,9 @@ const navItems = [
     <div class="sidebar-panel workspace-copy" style="margin-bottom: 18px">
       <div class="topline">
         <strong>Workspace</strong>
-        <span class="pill">Musician</span>
+        <span class="pill">{{ auth.user.value?.role === 'admin' ? 'Administrator' : 'Musician' }}</span>
       </div>
-      <p class="muted">OKSBI music registration</p>
+      <p class="muted">{{ auth.user.value?.role === 'admin' ? 'OKSBI operations' : 'OKSBI music registration' }}</p>
     </div>
 
     <nav class="workspace-copy" aria-label="Primary navigation">

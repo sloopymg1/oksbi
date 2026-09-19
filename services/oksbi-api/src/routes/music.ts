@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { parseJsonBody, type RouteDefinition } from '../http.js';
-import { musicSubmissionSchema, type MusicSubmission, type OnboardingProfile, type User } from '../shared.js';
+import { musicOrganizations, newMusicSubmissionSchema, musicSubmissionSchema, societyCreateSchema, type MusicSubmission, type OnboardingProfile, type User } from '../shared.js';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../errors/errorTypes.js';
 import { createAuditFields, touchAuditFields } from '../utils/records.js';
 import type { DatabaseService } from '../services/interfaces.js';
@@ -21,6 +21,10 @@ const reviewSchema = z.object({
   .refine(value => value.status !== 'needs_changes' || value.notes.length > 0, 'Explain the changes needed');
 
 export const musicRoutes: RouteDefinition[] = [
+  { method: 'GET', path: '/music/organizations', summary: 'List publishing companies, PROs and CMOs', requiresAuth: true,
+    handler: async ({ services }) => { const added = await services.database.findMany('society', { orderBy: 'createdAt', orderDirection: 'desc' }); return { status: 200, body: { items: [...musicOrganizations, ...added] } }; } },
+  { method: 'POST', path: '/music/organizations', summary: 'Add a publishing or copyright society', requiresAuth: true,
+    handler: async ({ req, services, currentUser }) => { if (!currentUser!.roles.includes('admin')) throw new ForbiddenError('Administrator role required'); const input = await parseJsonBody(req, societyCreateSchema); const society = await services.database.create('society', { ...createAuditFields(currentUser!), ...input }); return { status: 201, body: { society } }; } },
   { method: 'GET', path: '/onboarding', summary: 'Get musician profile', requiresAuth: true,
     handler: async ({ services, currentUser }) => ({ status: 200, body: { profile: await services.database.findFirst('onboardingProfile', { userId: currentUser!.id }) } }) },
   { method: 'GET', path: '/music', summary: 'List music and society registrations', requiresAuth: true,
@@ -30,11 +34,19 @@ export const musicRoutes: RouteDefinition[] = [
     } },
   { method: 'POST', path: '/music', summary: 'Create music submission', requiresAuth: true,
     handler: async ({ req, services, currentUser }) => {
-      const metadata = await parseJsonBody(req, musicSubmissionSchema);
+      const metadata = await parseJsonBody(req, newMusicSubmissionSchema);
       const profile = await services.database.findFirst<OnboardingProfile>('onboardingProfile', { userId: currentUser!.id });
-      if (!profile || profile.status === 'draft') throw new BadRequestError('Complete your musician profile before uploading music.');
+      if (!profile || profile.status !== 'approved') throw new BadRequestError('Your musician application must be approved before uploading music.');
       const item = await services.database.create('musicSubmission', { ...createAuditFields(currentUser!), ownerUserId: currentUser!.id, artistName: profile.artistName, metadata, status: 'draft', registrations: JSON.stringify([]) });
       return { status: 201, body: { item } };
+    } },
+  { method: 'PATCH', path: '/music/:id', summary: 'Update music submission details', requiresAuth: true,
+    handler: async ({ req, params, services, currentUser }) => {
+      const item = await owned(services.database, params.id!, currentUser!);
+      if (item.ownerUserId !== currentUser!.id) throw new ForbiddenError('Only the musician can edit these details.');
+      const metadata = await parseJsonBody(req, musicSubmissionSchema);
+      const updated = await services.database.update('musicSubmission', item.id, { metadata, artistName: item.artistName, ...touchAuditFields(currentUser!) });
+      return { status: 200, body: { item: updated } };
     } },
   { method: 'PUT', path: '/music/:id/audio', summary: 'Upload a WAV, MP3 or FLAC master (maximum 50 MB)', requiresAuth: true,
     handler: async ({ req, params, services, currentUser }) => {

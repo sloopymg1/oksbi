@@ -1,0 +1,8 @@
+import type { RouteDefinition } from '../http.js';
+import { parseJsonBody } from '../http.js';
+import { knowledgeDocumentSchema, knowledgeQuestionSchema, researchQuestionSchema } from '../shared.js';
+
+export const knowledgeListRoute: RouteDefinition = { method: 'GET', path: '/knowledge/documents', summary: 'List knowledge documents', requiresAuth: true, handler: async ({ services, currentUser }) => { const items = await services.knowledge.list(currentUser!); return { status: 200, body: { items, total: items.length } }; } };
+export const knowledgeCreateRoute: RouteDefinition = { method: 'POST', path: '/knowledge/documents', summary: 'Add knowledge document', requiresAuth: true, handler: async ({ req, services, currentUser }) => ({ status: 201, body: { document: await services.knowledge.create(currentUser!, await parseJsonBody(req, knowledgeDocumentSchema)) } }) };
+export const knowledgeAnswerRoute: RouteDefinition = { method: 'POST', path: '/assistant/answer', summary: 'Answer from public knowledge base', handler: async ({ req, services, currentUser }) => ({ status: 200, body: await services.knowledge.answer(currentUser, await parseJsonBody(req, knowledgeQuestionSchema)) }) };
+export const knowledgeResearchRoute: RouteDefinition = { method: 'POST', path: '/assistant/research', summary: 'Research external sources', handler: async ({ req, services, currentUser }) => ({ status: 200, body: await services.knowledge.research(currentUser, await parseJsonBody(req, researchQuestionSchema)) }) };

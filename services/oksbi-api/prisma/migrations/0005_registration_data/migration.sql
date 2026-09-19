@@ -1,0 +1,1 @@
+ALTER TABLE onboarding_profiles ADD COLUMN registration_data jsonb NOT NULL DEFAULT '{}'::jsonb;

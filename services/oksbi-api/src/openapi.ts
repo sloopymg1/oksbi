@@ -20,6 +20,9 @@ paths:
   /auth/logout:
     post:
       summary: Revoke the current session
+  /music/organizations:
+    get:
+      summary: List the curated publishing company, PRO and CMO directory
   /music:
     get:
       summary: List owned music submissions (all submissions for administrators)

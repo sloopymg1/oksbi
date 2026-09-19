@@ -23,3 +23,9 @@ Society names are requested destinations, not a directory of connected partners.
 ## Integration architecture
 
 See [the distribution and publishing architecture](docs/music-platform-architecture.md) for verified provider roles, catalog mapping, society registration, royalty accounting, implementation phases and open partner decisions. This document distinguishes the existing intake workflow from planned external integrations.
+
+## Organization directory
+
+The music submission form offers grouped selections for publishing companies, PROs and CMOs through authenticated `GET /music/organizations`. Maintain entries in `services/shared/src/organizations.ts`; each has a stable ID, name, category, region, description and official source link (checked 2026-09-18). New submissions must use valid directory IDs with matching names and categories, and duplicate organizations are rejected. Historical free-text drafts remain supported when completing submission.
+
+The initial directory includes GHAMRO, CAPASSO, SAMRO, BMI, Sony Music Publishing and GHMusic Publishing and Management. These are selectable review destinations, not claims of OKSBI partnership or automatic acceptance. Publisher selection requests a publishing review and does not set the musician's existing publisher affiliation. No database migration is needed because destination details are stored in existing JSON metadata.

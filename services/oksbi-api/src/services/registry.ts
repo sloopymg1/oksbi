@@ -14,6 +14,8 @@ import {
   DefaultSupportService,
   DefaultTakedownService,
 } from './domain.js';
+import { DefaultKnowledgeService } from './knowledge.js';
+import { DefaultMusicSearchService } from './musicSearch.js';
 import { BlobStorageService, PostgresDatabaseService, RedisCacheService } from './infrastructure.js';
 import type { ServiceRegistry } from './interfaces.js';
 import { createBlobClientProvider } from './providers/blob.js';
@@ -73,5 +75,7 @@ async function initializeServices(): Promise<ServiceRegistry> {
     support: new DefaultSupportService(database),
     takedowns: new DefaultTakedownService(database),
     admin: new DefaultAdminService(database),
+    knowledge: new DefaultKnowledgeService(database),
+    musicSearch: new DefaultMusicSearchService(database),
   };
 }

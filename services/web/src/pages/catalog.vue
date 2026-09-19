@@ -1,6 +1,22 @@
 <script setup lang="ts">
 import { request } from '~/api/client'
-type Destination = { name: string; kind: 'PRO' | 'CMO'; territory: string }
+type Destination = { organizationId?: string; name: string; kind: 'PRO' | 'CMO' | 'publisher'; territory: string }
+type Organization = { id: string; name: string; kind: Destination['kind']; region: string; website: string; description: string }
+const organizations = ref<Organization[]>([])
+const directoryError = ref('')
+const directoryLoading = ref(true)
+const groups = [{ kind: 'publisher', label: 'Music publishing companies' }, { kind: 'PRO', label: 'Performing rights organizations (PROs)' }, { kind: 'CMO', label: 'Collective management organizations (CMOs)' }]
+async function loadDirectory() {
+  directoryLoading.value = true; directoryError.value = ''
+  try { organizations.value = (await request<{ items: Organization[] }>('/music/organizations')).items }
+  catch { directoryError.value = 'Unable to load organizations. Please retry.' }
+  finally { directoryLoading.value = false }
+}
+function chooseOrganization(destination: Destination) {
+  const organization = organizations.value.find(row => row.id === destination.organizationId)
+  if (organization) { destination.name = organization.name; destination.kind = organization.kind }
+}
+function selectedOrganization(destination: Destination) { return organizations.value.find(row => row.id === destination.organizationId) }
 type Registration = Destination & { status: string; reference: string; notes: string }
 type Submission = { id: string; artistName: string; metadata: { title: string; language: string; isrc: string; iswc: string; publisherName: string; contributors: Array<{ name: string; role: string; share: number; ipi: string; society: string }> }; status: string; audioBlobPath?: string; registrations: Registration[] }
 const auth = useAuth()
@@ -10,6 +26,7 @@ const message = ref('')
 const pending = ref(false)
 const loading = ref(true)
 const draftId = ref('')
+const editingId = ref('')
 const file = ref<File | null>(null)
 const form = reactive({ title: '', language: '', isrc: '', iswc: '', publisherName: '', authorized: false,
   contributors: [{ name: '', role: 'composer_lyricist', share: 100, ipi: '', society: '' }],
@@ -20,7 +37,7 @@ async function reload() {
   catch (e) { error.value = e instanceof Error ? e.message : 'Unable to load music.' }
   finally { loading.value = false }
 }
-onMounted(reload)
+onMounted(() => { void reload(); void loadDirectory() })
 function selectFile(event: Event) { file.value = (event.target as HTMLInputElement).files?.[0] ?? null }
 async function submit() {
   error.value = ''; message.value = ''
@@ -35,6 +52,36 @@ async function submit() {
     message.value = 'Music submitted to OKSBI for review. Track each requested society below.'
     await reload()
   } catch (e) { error.value = e instanceof Error ? e.message : 'Submission failed. Retry to continue your saved draft.' }
+  finally { pending.value = false }
+}
+function editItem(item: Submission) {
+  editingId.value = item.id
+  form.title = item.metadata.title
+  form.language = item.metadata.language
+  form.isrc = item.metadata.isrc
+  form.iswc = item.metadata.iswc
+  form.publisherName = item.metadata.publisherName
+  form.contributors = item.metadata.contributors.map(writer => ({ ...writer }))
+  form.destinations = item.metadata.destinations.map(destination => ({ ...destination }))
+  form.authorized = true
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+function cancelEdit() {
+  editingId.value = ''
+  form.title = ''; form.language = ''; form.isrc = ''; form.iswc = ''; form.publisherName = ''; form.authorized = false
+  form.contributors = [{ name: '', role: 'composer_lyricist', share: 100, ipi: '', society: '' }]
+  form.destinations = [{ name: '', kind: 'PRO', territory: '' }]
+}
+async function saveEdit() {
+  error.value = ''; message.value = ''
+  if (!editingId.value || Math.abs(total.value - 100) > 0.001) { error.value = 'Writer shares must total 100%.'; return }
+  pending.value = true
+  try {
+    await request(`/music/${editingId.value}`, { method: 'PATCH', body: JSON.stringify(form) })
+    message.value = 'Song details updated.'
+    cancelEdit()
+    await reload()
+  } catch (e) { error.value = e instanceof Error ? e.message : 'Unable to update song details.' }
   finally { pending.value = false }
 }
 async function resume(item: Submission, event: Event) {
@@ -66,18 +113,18 @@ async function review(item: Submission, row: Registration) {
   <section class="workspace-copy">
     <article class="surface workspace-copy">
       <span class="eyebrow">Your music · Your rights</span>
-      <h1 class="section-title">Upload music for PRO / CMO registration</h1>
+      <h1 class="section-title">{{ editingId ? 'Edit song details' : 'Upload new music' }}</h1>
       <p class="helper-text">Complete your profile, upload a recording, and tell OKSBI where you want the work registered. OKSBI reviews your information before society delivery. A request does not mean a society has accepted your work.</p>
       <NuxtLink to="/membership" class="secondary-button">Complete or edit musician profile</NuxtLink>
-      <p class="helper-text">PROs and CMOs manage music rights. These requests are separate from releasing music on streaming platforms. Destinations you enter are requests, subject to OKSBI review and society requirements.</p>
-      <form class="form-stack" @submit.prevent="submit">
+      <p class="helper-text">PROs and CMOs manage music rights. These requests are separate from releasing music on streaming platforms. Choose organizations for OKSBI to review. Directory listings are not connected partners. Selecting a publisher requests a publishing review; it does not establish representation or an agreement.</p>
+      <form class="form-stack" @submit.prevent="editingId ? saveEdit() : submit()">
         <fieldset :disabled="pending || !!draftId" class="form-stack" style="border: 0; padding: 0">
           <legend>Track and composition details</legend>
           <label class="form-label">Track title<input v-model="form.title" required maxlength="180" class="form-field" /></label>
           <label class="form-label">Language<input v-model="form.language" required minlength="2" maxlength="80" class="form-field" /></label>
           <label class="form-label">ISRC (optional)<input v-model="form.isrc" maxlength="32" class="form-field" /></label>
           <label class="form-label">ISWC (optional)<input v-model="form.iswc" maxlength="32" class="form-field" /></label>
-          <label class="form-label">Publisher (optional)<input v-model="form.publisherName" maxlength="180" class="form-field" /></label>
+          <label class="form-label">Existing publisher (optional; only if already represented)<input v-model="form.publisherName" maxlength="180" class="form-field" /></label>
           <h2 class="section-title">Writers and ownership</h2>
           <div v-for="(writer, index) in form.contributors" :key="index" class="note-card form-stack">
             <label class="form-label">Writer legal name<input v-model="writer.name" required minlength="2" class="form-field" /></label>
@@ -89,19 +136,33 @@ async function review(item: Submission, row: Registration) {
           </div>
           <p class="helper-text">Total: {{ total }}% · must equal 100%</p>
           <button type="button" class="secondary-button" @click="form.contributors.push({ name: '', role: 'composer', share: 0, ipi: '', society: '' })">Add writer</button>
-          <h2 class="section-title">Requested societies</h2>
+          <h2 class="section-title">Choose publishing companies, PROs and CMOs</h2>
+          <p class="helper-text">Select one or more organizations. PROs specialize in performing rights and are also collective management organizations; these groups help you browse the directory. The listed region describes the organization, not guaranteed registration coverage.</p>
+          <p v-if="directoryLoading" role="status">Loading organizations…</p>
+          <div v-if="directoryError" role="alert">{{ directoryError }} <button type="button" class="secondary-button" @click="loadDirectory">Retry directory</button></div>
           <div v-for="(destination, index) in form.destinations" :key="index" class="note-card form-stack">
-            <label class="form-label">Society name<input v-model="destination.name" required minlength="2" class="form-field" /></label>
-            <label class="form-label">Organization type<select v-model="destination.kind" class="form-field"><option>PRO</option><option>CMO</option></select></label>
+            <label class="form-label">Organization
+              <select v-model="destination.organizationId" required class="form-field" :disabled="directoryLoading || !!directoryError" @change="chooseOrganization(destination)">
+                <option :value="undefined" disabled>Choose an organization</option>
+                <optgroup v-for="group in groups" :key="group.kind" :label="group.label">
+                  <option v-for="organization in organizations.filter(row => row.kind === group.kind)" :key="organization.id" :value="organization.id" :disabled="form.destinations.some(row => row !== destination && row.organizationId === organization.id)">{{ organization.name }} · {{ organization.region }}</option>
+                </optgroup>
+              </select>
+            </label>
+            <div v-if="selectedOrganization(destination)" class="workspace-copy">
+              <p class="helper-text">{{ selectedOrganization(destination)?.description }}</p>
+              <a :href="selectedOrganization(destination)?.website" target="_blank" rel="noopener noreferrer">Visit official website</a>
+              <span class="helper-text">{{ destination.kind === 'publisher' ? 'Publishing review request' : 'Society registration request' }} · OKSBI review required</span>
+            </div>
             <label class="form-label">Requested territory<input v-model="destination.territory" required minlength="2" placeholder="Country or territory" class="form-field" /></label>
-            <button v-if="form.destinations.length > 1" type="button" class="ghost-button" @click="form.destinations.splice(index, 1)">Remove society</button>
+            <button v-if="form.destinations.length > 1" type="button" class="ghost-button" @click="form.destinations.splice(index, 1)">Remove organization</button>
           </div>
-          <button type="button" class="secondary-button" @click="form.destinations.push({ name: '', kind: 'CMO', territory: '' })">Add society</button>
+          <button type="button" class="secondary-button" @click="form.destinations.push({ name: '', kind: 'CMO', territory: '' })">Add organization</button>
           <label><input v-model="form.authorized" type="checkbox" required /> I am authorized to submit this music and the listed ownership details to OKSBI for society registration review.</label>
         </fieldset>
-        <label class="form-label">Audio master · WAV, MP3 or FLAC · up to 50 MB<input type="file" accept=".wav,.mp3,.flac" required :disabled="pending" @change="selectFile" /></label>
+        <label v-if="!editingId" class="form-label">Audio master · WAV, MP3 or FLAC · up to 50 MB<input type="file" accept=".wav,.mp3,.flac" required :disabled="pending" @change="selectFile" /></label>
         <p v-if="draftId" class="helper-text">Your details are saved. Retry with an audio file to finish this submission.</p>
-        <button class="primary-button" :disabled="pending">{{ pending ? 'Saving and uploading…' : draftId ? 'Retry upload and submit' : 'Upload and submit to OKSBI' }}</button>
+        <div class="button-row"><button class="primary-button" :disabled="pending || directoryLoading || !!directoryError">{{ pending ? 'Saving…' : editingId ? 'Save song details' : draftId ? 'Retry upload and submit' : 'Upload and submit to OKSBI' }}</button><button v-if="editingId" type="button" class="secondary-button" @click="cancelEdit">Cancel edit</button></div>
       </form>
     </article>
     <p v-if="error" role="alert" class="validation-note">{{ error }}</p>
@@ -113,6 +174,7 @@ async function review(item: Submission, row: Registration) {
       <button type="button" class="secondary-button" :disabled="pending" @click="reload">Refresh status</button>
       <article v-for="item in items" :key="item.id" class="note-card workspace-copy">
         <strong>{{ item.metadata.title }} · {{ item.artistName }}</strong>
+        <button type="button" class="secondary-button" :disabled="pending" @click="editItem(item)">Edit song details</button>
         <details>
           <summary>View submitted rights details</summary>
           <p>Language: {{ item.metadata.language }} · ISRC: {{ item.metadata.isrc || 'Not provided' }} · ISWC: {{ item.metadata.iswc || 'Not provided' }}</p>

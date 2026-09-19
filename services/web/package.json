@@ -16,6 +16,7 @@
     "@nuxt/kit": "^4.0.3",
     "@tailwindcss/vite": "^4.1.12",
     "nuxi": "^3.30.0",
-    "tailwindcss": "^4.1.12"
+    "tailwindcss": "^4.1.12",
+    "vite-plugin-vue-tracer": "^1.5.0"
   }
 }

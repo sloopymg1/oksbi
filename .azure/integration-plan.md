@@ -3,36 +3,38 @@
 ## Backend
 - Folder: `services/oksbi-api`
 - Build: `npm --prefix services/oksbi-api run build`
-- Run: `npm --prefix services/oksbi-api run start`
-- Port: `3001` (`PORT`)
-- Health: `GET /health`
-- Auth: `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `POST /auth/logout`; protected domain routes require the auth boundary.
+- Run: `npm --prefix services/oksbi-api run dev` (or `npm --prefix services/oksbi-api run build && npm --prefix services/oksbi-api run start`)
+- Port: `7071` (`PORT`)
+- Health: `GET /api/health`
+- Auth: `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout`; protected domain routes require the auth boundary.
 
 ## Frontend
 - Folder: `services/web`
 - Build: `npm --prefix services/web run build`
 - Dev: `npm --prefix services/web run dev`
-- API seam: `services/web/src/api/index.ts`; replace the mock export with the live typed client method-for-method.
-- Delete after wiring: `services/web/src/api/mockClient.ts`, `services/web/src/mocks/*`, duplicated local mock types, `services/web/src/api/previewState.ts`, and `services/web/src/components/PreviewStateToggle.vue`.
+- API seam: `services/web/src/api/index.ts`; it currently exports the live typed client.
+- Mock files to delete: none present. `services/web/src/mocks/` is empty and no preview-state switcher exists.
 
 ## API Routes
-- `GET /health`
-- `POST /auth/register`
-- `POST /auth/login`
-- `GET /auth/me`
-- `POST /auth/logout`
-- `POST /onboarding`
-- `GET /releases`
-- `GET /recordings`
-- `GET /compositions`
-- `POST /rights/splits`
-- `GET /royalties/statements`
-- `POST /payouts`
-- `POST /smart-links`
-- `POST /support/cases`
-- `POST /takedowns`
-- `POST /admin/operations`
-- `GET /openapi`
+- `GET /api/health`
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `POST /api/auth/logout`
+- `POST /api/onboarding`
+- `GET /api/releases`
+- `GET /api/recordings?releaseId=`
+- `GET /api/compositions`
+- `POST /api/rights/splits`
+- `GET /api/royalties/statements?period=`
+- `POST /api/payouts`
+- `GET /api/payouts`
+- `POST /api/smart-links`
+- `POST /api/support/cases`
+- `GET /api/support/cases`
+- `POST /api/takedowns`
+- `POST /api/admin/operations`
+- `GET /api/openapi`
 
 ## Database
 - Type: PostgreSQL

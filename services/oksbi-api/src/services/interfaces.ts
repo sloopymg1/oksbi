@@ -28,6 +28,15 @@ import type {
   TakedownRequest,
   TakedownRequestBody,
   User,
+  KnowledgeAnswer,
+  KnowledgeDocument,
+  KnowledgeDocumentRequest,
+  KnowledgeQuestion,
+  ResearchQuestion,
+  MusicianStatusRequest,
+  MusicSubmission,
+  MusicSearchQuery,
+  MusicSearchResult,
 } from '../shared.js';
 import type { AppConfig } from '../config.js';
 
@@ -141,6 +150,20 @@ export interface TakedownService {
 
 export interface AdminService {
   recordOperation(actor: User, input: AdminOperationRequest): Promise<AdminOperation>;
+  listMusicians(actor: User): Promise<Array<{ id: string; email: string; displayName: string; createdAt: string; onboardingStatus: string; artistName?: string; countryCode?: string }>>;
+  getMusician(actor: User, musicianId: string): Promise<{ musician: { id: string; email: string; displayName: string; createdAt: string; onboardingStatus: string; artistName?: string; countryCode?: string }; songs: MusicSubmission[] }>;
+  updateMusicianStatus(actor: User, musicianId: string, input: MusicianStatusRequest): Promise<void>;
+}
+
+export interface KnowledgeService {
+  list(actor: User): Promise<KnowledgeDocument[]>;
+  create(actor: User, input: KnowledgeDocumentRequest): Promise<KnowledgeDocument>;
+  answer(actor: User | undefined, input: KnowledgeQuestion): Promise<KnowledgeAnswer>;
+  research(actor: User | undefined, input: ResearchQuestion): Promise<KnowledgeAnswer>;
+}
+
+export interface MusicSearchService {
+  search(actor: User, input: MusicSearchQuery): Promise<MusicSearchResult>;
 }
 
 export interface ServiceRegistry {
@@ -160,4 +183,6 @@ export interface ServiceRegistry {
   support: SupportService;
   takedowns: TakedownService;
   admin: AdminService;
+  knowledge: KnowledgeService;
+  musicSearch: MusicSearchService;
 }

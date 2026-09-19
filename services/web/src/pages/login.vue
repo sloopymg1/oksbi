@@ -15,7 +15,7 @@ async function handleSubmit() {
 
   try {
     await auth.login({ email: email.value, password: password.value })
-    await router.push('/')
+    await router.push('/catalog')
   } catch (caughtError) {
     localError.value = caughtError instanceof Error ? caughtError.message : 'Login failed.'
   }
@@ -27,7 +27,7 @@ async function handleSubmit() {
     <section class="auth-shell auth-grid">
       <div class="auth-panel workspace-copy">
         <span class="eyebrow">API login</span>
-        <h1 class="page-title" style="color: var(--ink)">Sign in to the OKSBI operations workspace.</h1>
+        <h1 class="page-title" style="color: var(--ink)">Sign in to the OKSBi operations workspace.</h1>
         <p class="helper-text">
           Sign in with your OKSBI account to access the operations workspace.
         </p>

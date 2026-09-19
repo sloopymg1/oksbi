@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
-import { musicSubmissionSchema } from '../src/shared.js';
+import { newMusicSubmissionSchema, musicSubmissionSchema, musicOrganizations } from '../src/shared.js';
 import { musicRoutes } from '../src/routes/music.js';
 
-const metadata = { title: 'First song', language: 'English', contributors: [{ name: 'Test Writer', role: 'composer', share: 100 }], destinations: [{ name: 'Requested Society', kind: 'PRO', territory: 'Ghana' }], authorized: true };
+const metadata = { title: 'First song', language: 'English', contributors: [{ name: 'Test Writer', role: 'composer', share: 100 }], destinations: [{ organizationId: 'bmi', name: 'BMI', kind: 'PRO', territory: 'Ghana' }], authorized: true };
 function fixture() {
   const records = new Map<string, any>();
   const database: any = {
@@ -42,7 +42,7 @@ test('upload, submit, delivery and confirmed registration lifecycle', async () =
   await call('POST', '/music/:id/submit', undefined, id);
   assert.equal(records.get(id).registrations.length, 1);
   await assert.rejects(call('PUT', '/music/:id/audio', Buffer.from('RIFF0000WAVEdata'), id), /cannot be replaced/);
-  const review = { destination: 'Requested Society', status: 'registered', reference: 'CONF-123' };
+  const review = { destination: 'BMI', status: 'registered', reference: 'CONF-123' };
   await assert.rejects(call('PATCH', '/music/:id/registration', review, id), /administrators/);
   await assert.rejects(call('PATCH', '/music/:id/registration', review, id, 'admin'), /Record delivery/);
   await call('PATCH', '/music/:id/registration', { ...review, status: 'sent' }, id, 'admin');
@@ -56,4 +56,18 @@ test('another musician cannot list, upload or submit owned music', async () => {
   assert.deepEqual(((await call('GET', '/music', undefined, undefined, 'creator', 'other')).body as any).items, []);
   await assert.rejects(call('PUT', '/music/:id/audio', Buffer.from('RIFF0000WAVEdata'), id, 'creator', 'other'), /Insufficient permissions/);
   await assert.rejects(call('POST', '/music/:id/submit', undefined, id, 'creator', 'other'), /Insufficient permissions/);
+});
+
+test('directory selections support publishers and reject unknown or mismatched entries', () => {
+  for (const organization of musicOrganizations) {
+    assert.equal(newMusicSubmissionSchema.safeParse({ ...metadata, destinations: [{ organizationId: organization.id, name: organization.name, kind: organization.kind, territory: 'Ghana' }] }).success, true);
+  }
+  for (const change of [{ organizationId: 'unknown' }, { name: 'Fake BMI' }, { kind: 'publisher' }, { organizationId: undefined }]) {
+    assert.equal(newMusicSubmissionSchema.safeParse({ ...metadata, destinations: [{ ...metadata.destinations[0], ...change }] }).success, false);
+  }
+  assert.equal(musicSubmissionSchema.safeParse({ ...metadata, destinations: [{ name: 'Legacy Society', kind: 'PRO', territory: 'Ghana' }] }).success, true);
+});
+test('directory endpoint exposes the same organizations used by validation', async () => {
+  const { call } = fixture();
+  assert.deepEqual(((await call('GET', '/music/organizations')).body as any).items, musicOrganizations);
 });

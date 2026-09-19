@@ -11,7 +11,7 @@ import type {
   WorkspaceUser
 } from '~/types'
 
-import type { ApiClient } from './types'
+import type { ApiClient, KnowledgeAnswer, KnowledgeDocument, MusicianAdminRecord, MusicianDetail, MusicSearchResult, SocietyRecord } from './types'
 
 type ListResponse<T> = { items: T[]; total: number }
 type ApiUser = {
@@ -197,5 +197,50 @@ export const liveClient: ApiClient = {
       updatedAt: supportCase.updatedAt,
       status: supportCase.status
     }))
+  },
+
+  async listKnowledgeDocuments(): Promise<KnowledgeDocument[]> {
+    const response = await request<{ items: KnowledgeDocument[] }>('/knowledge/documents')
+    return response.items
+  },
+
+  async addKnowledgeDocument(input) {
+    const response = await request<{ document: KnowledgeDocument }>('/knowledge/documents', { method: 'POST', body: JSON.stringify(input) })
+    return response.document
+  },
+
+  async askKnowledge(question: string): Promise<KnowledgeAnswer> {
+    return request<KnowledgeAnswer>('/assistant/answer', { method: 'POST', body: JSON.stringify({ question }) })
+  },
+
+  async researchKnowledge(question: string, urls: string[]): Promise<KnowledgeAnswer> {
+    return request<KnowledgeAnswer>('/assistant/research', { method: 'POST', body: JSON.stringify({ question, urls }) })
+  },
+
+  async listMusicians(): Promise<MusicianAdminRecord[]> {
+    const response = await request<{ items: MusicianAdminRecord[] }>('/admin/musicians')
+    return response.items
+  },
+
+  async updateMusicianStatus(musicianId: string, status: MusicianAdminRecord['onboardingStatus']): Promise<void> {
+    await request(`/admin/musicians/${musicianId}/status`, { method: 'PATCH', body: JSON.stringify({ status }) })
+  },
+
+  async getMusician(musicianId: string): Promise<MusicianDetail> {
+    return request<MusicianDetail>(`/admin/musicians/${musicianId}`)
+  },
+
+  async searchMusic(input): Promise<MusicSearchResult> {
+    return request<MusicSearchResult>('/admin/music/search', { method: 'POST', body: JSON.stringify({ ...input, contributors: [] }) })
+  },
+
+  async listSocieties(): Promise<SocietyRecord[]> {
+    const response = await request<{ items: SocietyRecord[] }>('/music/organizations')
+    return response.items
+  },
+
+  async createSociety(input: Omit<SocietyRecord, 'id'>): Promise<SocietyRecord> {
+    const response = await request<{ society: SocietyRecord }>('/music/organizations', { method: 'POST', body: JSON.stringify(input) })
+    return response.society
   }
 }

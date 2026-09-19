@@ -1,9 +1,25 @@
 import tailwindcss from '@tailwindcss/vite'
 
+// Nuxt DevTools / Vite resolve "open in editor" through `launch-editor`, which
+// honours LAUNCH_EDITOR. Defaulting it here (instead of in the `dev` script)
+// keeps it working no matter how the dev server is started, on any platform.
+process.env.LAUNCH_EDITOR ||= 'code'
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-17',
   srcDir: 'src/',
-  devtools: { enabled: false },
+  modules: ['./modules/devtools-open-in-editor'],
+  devtools: {
+    enabled: true,
+    disableAuthorization: true,
+    // The element picker is provided by ./modules/devtools-open-in-editor
+    // instead, which records absolute paths so "open in editor" works from
+    // this monorepo. Do not re-enable without reading that module's comment.
+    componentInspector: false
+  },
+  devServer: {
+    host: '0.0.0.0'
+  },
   css: ['~/assets/css/main.css'],
   app: {
     head: {
@@ -32,7 +48,6 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
     server: {
-      host: true,
       allowedHosts: true,
       strictPort: false
     }
