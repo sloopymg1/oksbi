@@ -26,7 +26,7 @@ async function ask(research = false) {
   <main class="public-ask-page">
     <section class="public-ask-intro">
       <p class="public-ask-kicker">Public music knowledge desk</p>
-      <h1>Ask OKSBI.</h1>
+      <h1>Ask OKSBi.</h1>
       <p>Start with the indexed music knowledge base. When you need a wider view, ask the research agent to check public sources.</p>
     </section>
     <section class="public-ask-panel">
